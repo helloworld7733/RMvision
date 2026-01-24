@@ -4,21 +4,28 @@
 #include<vector>
 #include<iomanip>
 #include<string>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/imgproc.hpp>
+#include<opencv2/tracking.hpp>
+#include <opencv2/videoio.hpp>
+#include<opencv2/features2d.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include<opencv2/calib3d.hpp>
+
+using namespace cv;
+using namespace std;
 
 class LightbarDetector
 {
 public:
-    LightbarDetector(float h,float w,float mina=15,std::pair<int,int> mangle={60,120},std::pair<float,float> hw_r={1.5,15},int mcountersz=10,int )
-    {
-        height=h;
-        width=w;
-    }
+    LightbarDetector(){}
+    LightbarDetector(const cv::RotatedRect& light);
+    vector<Mat> Imagetransform(const Mat& frame);//bgr转csv
+    Mat Imageprocess(const vector<Mat>& vchannel);//二值化，blur, dilate
+    void findcontour(const Mat& frame);//包含初步筛选
 
 private:
-    float min_area;//允许的最小面积、
-    std::pair<float,float> hw_ratio;//允许的高宽比范围
-    std::pair<int,int> angle;//允许的旋转角度
-    int mincountersz;//允许的最小轮廓特征点数量
     float height,width,angle,area;
     cv::Point2f center;
 
