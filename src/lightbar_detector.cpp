@@ -26,6 +26,17 @@ LightbarDetector::LightbarDetector(const cv::RotatedRect& light)//用于从旋�
     area = light.size.area();
 }
 
+void LightbarDetector::adjustrec(RotatedRect& elps)
+{
+    if(elps.size.height<elps.size.width)
+    {
+        swap(elps.size.height,elps.size.width);
+        elps.angle+=90;
+    }
+    if(elps.angle>180) elps.angle-=180;
+    if(elps.angle<0) elps.angle+=180;
+}
+
 vector<Mat> LightbarDetector::Imagetransform(const Mat& frame)
 {
     Mat hsv_image;
@@ -43,10 +54,10 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)//只接受图片
     int threshdn=GlobalConfig::getinstance().lightobj.thresh_down;
     //区间一：橙红色
     Scalar lower_red1(0, 80, 80);
-    Scalar upper_red1(15, 255, 255);//极优参数
+    Scalar upper_red1(13, 255, 255);//极优参数
 
     // 区间 2: 160 - 180 (紫红色)
-    Scalar lower_red2(160, 80, 80);
+    Scalar lower_red2(179, 80, 80);
     Scalar upper_red2(180, 255, 255);
     Mat mask1,mask2,red_mask;
     inRange(frame,lower_red1,upper_red1,mask1);//相当于二值化操作
@@ -62,15 +73,33 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)//只接受图片
     return red_mask;
 }
 
-void LightbarDetector::findcontour(const Mat& frame)
+vector<LightbarDetector> LightbarDetector::findcontour(const Mat& frame)
 {
     vector<vector<Point>> contours;
+    vector<LightbarDetector> rect;
     vector<Vec4i> hierarchy;
     findContours(frame,contours,hierarchy,RETR_TREE,CHAIN_APPROX_SIMPLE);
     Mat drawing = Mat::zeros(frame.size(),CV_8UC3);
     for(int i=0;i<contours.size();i++)
     {
-        drawContours(drawing,contours,i,cv::Scalar(255,0,0),2,LINE_8,hierarchy,0);
+        //筛选轮廓
+        float contourarea=contourArea(contours[i]);
+        if(contourarea<GlobalConfig::getinstance().lightobj.min_area||
+            contours[i].size()<GlobalConfig::getinstance().lightobj.min_countersz) 
+            continue;//面积太小或点数太少舍弃
+        RotatedRect lightrec=fitEllipse(contours[i]);
+        adjustrec(lightrec);//规范化
+        if(lightrec.angle>GlobalConfig::getinstance().lightobj.angle_range.first&&
+            lightrec.angle<GlobalConfig::getinstance().lightobj.angle_range.second) 
+            continue;//舍弃歪曲过大的
+        if(lightrec.size.height/lightrec.size.width<GlobalConfig::getinstance().lightobj.hw_ratio.first||
+            lightrec.size.height/lightrec.size.width>GlobalConfig::getinstance().lightobj.hw_ratio.second) 
+            continue;//舍弃高宽比不合适的
+        // drawContours(drawing,contours,i,cv::Scalar(255,0,0),2,LINE_8,hierarchy,0);
+        lightrec.size.height*=1.2;
+        lightrec.size.width*=1.2;
+        rect.push_back(LightbarDetector(lightrec));
     }
-    imshow("contours",drawing);
+    // imshow("contours",drawing);
+    return rect;
 }

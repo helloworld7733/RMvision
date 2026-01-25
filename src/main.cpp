@@ -45,11 +45,16 @@ int main()
 
         vector<Mat> hsvsplits=obj.Imagetransform(frame);
         Mat red_mask=obj.Imageprocess(hsvsplits);//传入各个通道，便于后续及额外操作
-        obj.findcontour(red_mask);
+        vector<LightbarDetector> contours_rect=obj.findcontour(red_mask);
         // imshow("vchannel",red_mask);
-        if(waitKey(30)==27)
+        int key=waitKey(10);
+        if(key==27)
         {
             break;
+        }
+        else if(key==32)
+        {
+            waitKey(0);
         }
     }
     destroyAllWindows();

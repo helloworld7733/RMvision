@@ -18,10 +18,10 @@ using namespace std;
 
 struct lightbar_para
 {
-    std::pair<float,float> hw_ratio={1.5,15};
-    std::pair<int,int> angle_range={60,120};
-    float min_area=10;
-    int min_countersz=10;
+    std::pair<float,float> hw_ratio={2,6};
+    std::pair<int,int> angle_range={20,160};
+    float min_area=25;
+    int min_countersz=18;
     int thresh_upper=240;
     int thresh_down=200;
 };

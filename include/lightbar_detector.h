@@ -23,7 +23,8 @@ public:
     LightbarDetector(const cv::RotatedRect& light);
     vector<Mat> Imagetransform(const Mat& frame);//bgr转csv
     Mat Imageprocess(const vector<Mat>& vchannel);//二值化，blur, dilate
-    void findcontour(const Mat& frame);//包含初步筛选
+    void adjustrec(RotatedRect& elps);//外接椭圆规范化
+    vector<LightbarDetector> findcontour(const Mat& frame);//包含初步筛选
 
 private:
     float height,width,angle,area;
