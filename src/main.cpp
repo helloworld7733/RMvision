@@ -65,6 +65,14 @@ int main()
                 line(drawing,ele.vertices[s],ele.vertices[(s+1)%4],cv::Scalar(0,0,255));
             }
             circle(drawing,ele.center,3,Scalar(0,255,0),5);
+            if(ele.bflag)//是大装甲
+            {
+                putText(drawing,"Big armor",Point(ele.vertices[1].x,ele.vertices[1].y+2),1,1,cv::Scalar(0,255,0));
+            }
+            else 
+            {
+                putText(drawing,"Small armor",Point(ele.vertices[1].x,ele.vertices[1].y+2),1,1,cv::Scalar(0,255,0));
+            }
         }
         imshow("image",drawing);
         int key=waitKey(10);

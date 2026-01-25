@@ -90,7 +90,11 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
             if(ratio<GlobalConfig::getinstance().armorobj.l_ratio||
                 ratio>GlobalConfig::getinstance().armorobj.t_ratio)
                 continue;
-            Armor armor(lights[i],lights[j]);
+            Armor armor;
+            if(lights[i].getcenter().x<lights[j].getcenter().y)//分左右
+                armor=Armor(lights[i],lights[j]);
+            else 
+                armor=Armor(lights[j],lights[i]);
             //大小装甲区别：小于b_ratio则是小装甲，反之大装甲
             if(ratio<GlobalConfig::getinstance().armorobj.b_ratio)
             {
