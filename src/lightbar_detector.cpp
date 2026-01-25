@@ -24,6 +24,7 @@ LightbarDetector::LightbarDetector(const cv::RotatedRect& light)//用于从旋�
     center = light.center;
     angle = light.angle;
     area = light.size.area();
+    lightrect=RotatedRect(center,Size2f(width,height),angle);
 }
 
 void LightbarDetector::adjustrec(RotatedRect& elps)
@@ -54,7 +55,7 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)//只接受图片
     int threshdn=GlobalConfig::getinstance().lightobj.thresh_down;
     //区间一：橙红色
     Scalar lower_red1(0, 80, 80);
-    Scalar upper_red1(13, 255, 255);//极优参数
+    Scalar upper_red1(14, 255, 255);//极优参数
 
     // 区间 2: 160 - 180 (紫红色)
     Scalar lower_red2(179, 80, 80);

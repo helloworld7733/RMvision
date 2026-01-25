@@ -9,6 +9,7 @@ find_package(OpenCV REQUIRED)
 add_executable(Detection 
     src/main.cpp 
     src/lightbar_detector.cpp 
+    src/armor_matcher.cpp
 )
 
 include_directories(

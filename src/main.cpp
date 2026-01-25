@@ -12,7 +12,7 @@
 #include <opencv2/opencv.hpp>
 #include<opencv2/calib3d.hpp>
 
-// #include"armor_matcher.h"
+#include"armor_matcher.h"
 #include"config_manager.h"
 #include"lightbar_detector.h"
 // #include"num_recognizer.h"
@@ -46,7 +46,27 @@ int main()
         vector<Mat> hsvsplits=obj.Imagetransform(frame);
         Mat red_mask=obj.Imageprocess(hsvsplits);//传入各个通道，便于后续及额外操作
         vector<LightbarDetector> contours_rect=obj.findcontour(red_mask);
-        // imshow("vchannel",red_mask);
+        Mat drawing=Mat::zeros(red_mask.size(),CV_8UC3);
+        for(int i=0;i<contours_rect.size();i++)
+        {
+            Point2f pts[4];
+            contours_rect[i].lightrect.points(pts);
+            for(int ii=0;ii<4;ii++)
+            {
+                line(drawing,pts[ii],pts[(ii+1)%4],cv::Scalar(255,0,0),2,LINE_8);
+            }
+        }
+        ArmorDetector armor_detector;
+        vector<Armor> armors=armor_detector.matchbars(contours_rect);
+        for (auto ele:armors)
+        {
+            for(int s=0;s<4;s++)
+            {
+                line(drawing,ele.vertices[s],ele.vertices[(s+1)%4],cv::Scalar(0,0,255));
+            }
+            circle(drawing,ele.center,3,Scalar(0,255,0),5);
+        }
+        imshow("image",drawing);
         int key=waitKey(10);
         if(key==27)
         {

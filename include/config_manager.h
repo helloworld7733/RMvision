@@ -26,7 +26,15 @@ struct lightbar_para
     int thresh_down=200;
 };
 
-
+struct armor_para
+{
+    float angle_diff=8;
+    float height_diff=8;
+    float centery_diff=6;
+    float l_ratio=0.9;//允许的最小宽长比
+    float b_ratio=1.7;//超过此范围的有效宽长比认定为大装甲，反之小装甲
+    float t_ratio=2.2;//允许的最大宽长比
+};
 
 class GlobalConfig
 {
@@ -38,6 +46,7 @@ public:
     }
 
     lightbar_para lightobj;//组合关系
+    armor_para armorobj;
 private:
     GlobalConfig(){}//构造函数私有化，使得只能通过单例模式访问
 };
