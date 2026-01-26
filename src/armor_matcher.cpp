@@ -65,6 +65,30 @@ Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
     angle=(leftbar.getangle()+rightbar.getangle())/2;
 }
 
+void ArmorDetector::Erase_repeats(vector<Armor>& armors)
+{
+    for(int i=0;i<armors.size();i++)
+    {
+        for(int j=i+1;j<armors.size();j++)
+        {
+            if(armors[i].leftbar_index==armors[j].rightbar_index||
+                armors[i].leftbar_index==armors[j].leftbar_index||
+                armors[i].rightbar_index==armors[j].rightbar_index||
+                armors[i].rightbar_index==armors[j].leftbar_index)
+            {
+                if(armors[i].hratio_diff<armors[j].hratio_diff)//去除y差比率大的armor
+                {
+                    armors.erase(armors.begin()+j);
+                }
+                else 
+                {
+                    armors.erase(armors.begin()+i);
+                }
+            }
+        }
+    }
+}
+
 vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
 {
     vector<Armor> armors;
@@ -93,10 +117,19 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
                 ratio>GlobalConfig::getinstance().armorobj.t_ratio)
                 continue;
             Armor armor;
+            armor.hratio_diff=abs(lights[i].getcenter().y-lights[j].getcenter().y)/min(lights[i].getcenter().y,lights[j].getcenter().y);
             if(lights[i].getcenter().x<lights[j].getcenter().y)//分左右
+            {    
                 armor=Armor(lights[i],lights[j]);
+                armor.leftbar_index=i;
+                armor.rightbar_index=j;
+            }
             else 
+            {    
                 armor=Armor(lights[j],lights[i]);
+                armor.leftbar_index=j;
+                armor.rightbar_index=i;
+            }
             //大小装甲区别：小于b_ratio则是小装甲，反之大装甲
             if(ratio<GlobalConfig::getinstance().armorobj.b_ratio)
             {
@@ -111,5 +144,6 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
             armors.push_back(armor);
         }
     }
+    Erase_repeats(armors);
     return armors;
 }
