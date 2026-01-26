@@ -54,11 +54,11 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)//只接受图片
     int threshup=GlobalConfig::getinstance().lightobj.thresh_upper;
     int threshdn=GlobalConfig::getinstance().lightobj.thresh_down;
     //区间一：橙红色
-    Scalar lower_red1(0, 80, 80);
-    Scalar upper_red1(14, 255, 255);//极优参数
+    Scalar lower_red1(0, 80, 60);
+    Scalar upper_red1(15, 255, 255);//可调参数
 
-    // 区间 2: 160 - 180 (紫红色)
-    Scalar lower_red2(179, 80, 80);
+    // 区间 2: 160 - 180 (紫红色) (可选)
+    Scalar lower_red2(180, 255, 255);
     Scalar upper_red2(180, 255, 255);
     Mat mask1,mask2,red_mask;
     inRange(frame,lower_red1,upper_red1,mask1);//相当于二值化操作

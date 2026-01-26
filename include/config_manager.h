@@ -20,8 +20,8 @@ struct lightbar_para
 {
     std::pair<float,float> hw_ratio={2,6};
     std::pair<int,int> angle_range={20,160};
-    float min_area=25;
-    int min_countersz=18;
+    float min_area=15;
+    int min_countersz=15;
     int thresh_upper=240;
     int thresh_down=200;
 };
@@ -29,8 +29,8 @@ struct lightbar_para
 struct armor_para
 {
     float angle_diff=8;
-    float height_diff=8;
-    float centery_diff=6;
+    float heightratio_diff=0.06;
+    float centeryratio_diff=0.06;
     float l_ratio=0.9;//允许的最小宽长比
     float b_ratio=1.7;//超过此范围的有效宽长比认定为大装甲，反之小装甲
     float t_ratio=2.2;//允许的最大宽长比

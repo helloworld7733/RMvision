@@ -76,11 +76,13 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
             //平行筛选
             if(abs(lights[i].getangle()-lights[j].getangle())>GlobalConfig::getinstance().armorobj.angle_diff)
                 continue;
-            //长度差筛选
-            if(abs(lights[i].getheight()-lights[j].getheight())>GlobalConfig::getinstance().armorobj.height_diff)
+            //长度差比率筛选
+            if(abs(lights[i].getheight()-lights[j].getheight())/min(lights[i].getheight(),lights[j].getheight())>
+                    GlobalConfig::getinstance().armorobj.heightratio_diff)
                 continue;
-            //中心点y差筛选
-            if(abs(lights[i].getcenter().y-lights[j].getcenter().y)>GlobalConfig::getinstance().armorobj.centery_diff)
+            //中心点y差比率筛选
+            if(abs(lights[i].getcenter().y-lights[j].getcenter().y)/min(lights[i].getcenter().y,lights[j].getcenter().y)>
+                    GlobalConfig::getinstance().armorobj.centeryratio_diff)
                 continue;
             //宽长比筛选
             float h=(lights[i].getheight()+lights[j].getheight())/2;

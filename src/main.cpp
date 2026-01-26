@@ -37,6 +37,9 @@ int main()
     {
         Mat frame;
         cap>>frame;
+        Mat resized_frame;
+        // if(frame.size()<)
+        // resize(frame,resized_frame,Size(1300,1000));
         if(frame.empty())
         {
             cout<<"fail in viewing the video"<<endl;
