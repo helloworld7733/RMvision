@@ -15,7 +15,7 @@
 #include"armor_matcher.h"
 #include"config_manager.h"
 #include"lightbar_detector.h"
-// #include"num_recognizer.h"
+#include"num_recognizer.h"
 // #include"perspective.h"
 
 using namespace std;
@@ -61,6 +61,8 @@ int main()
         }
         ArmorDetector armor_detector;
         vector<Armor> armors=armor_detector.matchbars(contours_rect);
+        Numrecognizer numrecognizer;
+        numrecognizer.Loadsvm("D:/University_files/RM/cv/1.3/final/General/svm.xml");
         for (auto ele:armors)
         {
             for(int s=0;s<4;s++)
@@ -76,6 +78,9 @@ int main()
             {
                 putText(drawing,"Small armor",Point(ele.vertices[1].x,ele.vertices[1].y+2),1,1,cv::Scalar(0,255,0));
             }
+            numrecognizer.Loadarmor(ele,frame);
+            numrecognizer.num_recognize();
+            putText(drawing,to_string(ele.num),Point(ele.vertices[0].x,ele.vertices[0].y-4),1,1,cv::Scalar(0,255,0));
         }
         imshow("image",drawing);
         int key=waitKey(10);

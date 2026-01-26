@@ -10,6 +10,7 @@ add_executable(Detection
     src/main.cpp 
     src/lightbar_detector.cpp 
     src/armor_matcher.cpp
+    src/num_recognizer.cpp
 )
 
 include_directories(
