@@ -37,9 +37,8 @@ void Armor::setvertices(const LightbarDetector& leftbar, const LightbarDetector&
     vertices.push_back(ptsr[0]);
 }
 
-Point2f Armor::Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
+Point2f Armor::calc_cross(vector<Point2f> vertices)
 {
-    setvertices(leftbar,rightbar);
     vector<Point2f> vers=vertices;
     float k1=(vers[2].y-vers[0].y)/(vers[2].x-vers[0].x);
     float k2=(vers[1].y-vers[3].y)/(vers[1].x-vers[3].x);
@@ -51,6 +50,13 @@ Point2f Armor::Crossline(const LightbarDetector& leftbar, const LightbarDetector
     float rety=k1*retx+b1;
     Point2f ret(retx,rety);
     return ret;
+}
+
+Point2f Armor::Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
+{
+    setvertices(leftbar,rightbar);
+
+    return calc_cross(vertices);
 }
 
 Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
@@ -146,4 +152,30 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
     }
     Erase_repeats(armors);
     return armors;
+}
+
+void ArmorDetector::Frame_tracking(Mat frame, Mat old_frame, vector<Armor> old_armors, vector<Armor>& armors)
+{
+    vector<Point2f> newvertices;
+    vector<uchar> status;
+    vector<float> err;
+    bool tracking_success=true;
+    for(int i=0;i<old_armors.size();i++)
+    {
+        cv::calcOpticalFlowPyrLK(old_frame,frame,old_armors[i].vertices,newvertices,status,err);
+        for(auto a:status)
+        {
+            if(!a) tracking_success=false;
+        }
+        if(tracking_success)
+        {
+            Armor armor;
+            armor.num=old_armors[i].num;
+            armor.vertices=newvertices;
+            armor.bflag=old_armors[i].bflag;
+            armor.center=armor.calc_cross(newvertices);
+            armors.push_back(armor);
+        }
+    }
+    
 }

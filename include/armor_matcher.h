@@ -23,6 +23,7 @@ class Armor
 public:
     Armor(){}
     void setvertices(const LightbarDetector& leftbar, const LightbarDetector& rightbar);
+    Point2f calc_cross(vector<Point2f> vertices);
     Point2f Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar);//得出对角线角点作为装甲板中心
     Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar);
     int num;//数字识别结果
@@ -48,5 +49,5 @@ public:
 
     vector<Armor> matchbars(const vector<LightbarDetector>& lights);
     void Erase_repeats(vector<Armor>& armors);//去除含重复匹配灯条的装甲板
-
+    void Frame_tracking(Mat frame, Mat old_frame, vector<Armor> old_armors, vector<Armor>& armors);//跨帧一致性约束
 };
