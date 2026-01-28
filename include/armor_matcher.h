@@ -4,6 +4,7 @@
 #include<vector>
 #include<iomanip>
 #include<string>
+#include<algorithm>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>
 #include<opencv2/tracking.hpp>
@@ -33,7 +34,7 @@ public:
     bool bflag;//true表示是大装甲，反之是小装甲
     int leftbar_index;//左灯条序号
     int rightbar_index;//右灯条序号
-    float hratio_diff;//高度差比率，用来筛选装甲板中的重复灯条
+    float wh_ratio;//宽度差比率，用来筛选装甲板中的重复灯条
     
 private:
     LightbarDetector leftlightbar;//一个装甲板由左右两个灯条构成，体现组合关系
@@ -49,5 +50,6 @@ public:
 
     vector<Armor> matchbars(const vector<LightbarDetector>& lights);
     void Erase_repeats(vector<Armor>& armors);//去除含重复匹配灯条的装甲板
+    void Erase_wrong(vector<Armor>& armors);
     void Frame_tracking(Mat frame, Mat old_frame, vector<Armor> old_armors, vector<Armor>& armors);//跨帧一致性约束
 };

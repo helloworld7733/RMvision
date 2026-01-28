@@ -21,21 +21,27 @@ struct lightbar_para
     std::pair<float,float> hw_ratio={2,5};
     std::pair<int,int> angle_range={12,165};
     string enemy_color="red";//指定地方颜色为红色或蓝色
-    float min_area=16;
-    int min_countersz=15;
+    float min_area=10;
+    int min_countersz=10;
     int thresh_upper=240;
     int thresh_down=200;
 };
 
 struct armor_para
 {
-    float angle_diff=7;
-    float heightratio_diff=0.1;
-    float centeryratio_diff=0.1;
-    float l_ratio=0.9;//允许的最小宽长比
-    float b_ratio=1.7;//超过此范围的有效宽长比认定为大装甲，反之小装甲
-    float t_ratio=2.2;//允许的最大宽长比
+    float angle_diff=8;
+    float heightratio_diff=0.12;
+    float centeryratio_diff=0.12;
+    float l_ratio=0.85;//允许的最小宽长比
+    float b_ratio=1.85;//超过此范围的有效宽长比认定为大装甲，反之小装甲
+    float t_ratio=2.3;//允许的最大宽长比
+    float min_whratio=0.5;
+    float min_angle=10;
+    float dis_ratio_b=0.7;
+    float dis_ratio_s=0.25;
+    float y_diff=10;
 };
+
 
 class GlobalConfig
 {

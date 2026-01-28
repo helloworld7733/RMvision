@@ -38,7 +38,7 @@ void LightbarDetector::adjustrec(RotatedRect& elps)
     if(elps.angle<0) elps.angle+=180;
 }
 
-vector<Mat> LightbarDetector::Imagetransform(const Mat& frame)
+vector<Mat> LightbarDetector::Imagetransform(Mat& frame)
 {
     Mat hsv_image;
     if(frame.size().width!=1440||frame.size().height!=1080)//转成所需大小
@@ -64,7 +64,7 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)
     {
         //红色在h色调图中有两个区间，故分为两个区间讨论
         //区间一：橙红色
-        Scalar lower_red1(0, 100, 80);
+        Scalar lower_red1(0, 60, 90);
         Scalar upper_red1(16, 255, 255);//可调参数
 
         // 区间 2: 160 - 180 (紫红色) (可选)
