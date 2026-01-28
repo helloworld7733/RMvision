@@ -31,10 +31,28 @@ void Armor::setvertices(const LightbarDetector& leftbar, const LightbarDetector&
     rrect.points(ptsr);
     // vector<Point2f> vers;
     vertices.clear();
-    vertices.push_back(ptsl[3]);
-    vertices.push_back(ptsl[2]);
-    vertices.push_back(ptsr[1]);
-    vertices.push_back(ptsr[0]);
+    // cout<<"left: "<<"0:"<<ptsl[0]<<" 1: "<<ptsl[1]<<"2: "<<ptsl[2]<<"3: "<<ptsl[3]<<endl;
+    // cout<<"right: "<<"0:"<<ptsr[0]<<" 1: "<<ptsr[1]<<"2: "<<ptsr[2]<<"3: "<<ptsr[3]<<endl;
+    if(ptsl[1].x<ptsl[2].x)
+    {
+        vertices.push_back(ptsl[3]);
+        vertices.push_back(ptsl[2]);
+    }
+    else 
+    {
+        vertices.push_back(ptsl[1]);
+        vertices.push_back(ptsl[0]);
+    }
+    if(ptsr[1].x<ptsr[2].x)
+    {
+        vertices.push_back(ptsr[1]);
+        vertices.push_back(ptsr[0]);
+    }
+    else 
+    {
+        vertices.push_back(ptsr[3]);
+        vertices.push_back(ptsr[2]);
+    }
 }
 
 Point2f Armor::calc_cross(vector<Point2f> vertices)
@@ -69,14 +87,11 @@ Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
     num=0;//暂时设0
 
     angle=(leftbar.getangle()+rightbar.getangle())/2;
-
-    height=(leftbar.getheight()+rightbar.getheight())/2;
-    width=sqrt(pow(leftbar.getcenter().x-rightbar.getcenter().x,2)+
-            pow(leftbar.getcenter().y-rightbar.getcenter().y,2));
 }
 
 void ArmorDetector::Erase_repeats(vector<Armor>& armors)
 {
+    vector<int> repeats;
     for(int i=0;i<armors.size();i++)
     {
         for(int j=i+1;j<armors.size();j++)
@@ -86,16 +101,22 @@ void ArmorDetector::Erase_repeats(vector<Armor>& armors)
                 armors[i].rightbar_index==armors[j].rightbar_index||
                 armors[i].rightbar_index==armors[j].leftbar_index)
             {
-                if(armors[i].hratio_diff<armors[j].hratio_diff)//去除y差比率大的armor
+                cout<<armors[i].angle<<","<<armors[j].angle<<endl;
+                if(armors[i].angle<armors[j].angle)//去除height差比率大的armor
                 {
-                    armors.erase(armors.begin()+j);
+                    repeats.push_back(j);
+
                 }
                 else 
                 {
-                    armors.erase(armors.begin()+i);
+                    repeats.push_back(i);
                 }
             }
         }
+    }
+    for(int i=0;i<repeats.size();i++)
+    {
+        armors.erase(armors.begin()+repeats[i]);
     }
 }
 
@@ -123,19 +144,20 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
             float w=sqrt(pow(lights[i].getcenter().x-lights[j].getcenter().x,2)+
                         pow(lights[i].getcenter().y-lights[j].getcenter().y,2));
             float ratio=w/h;
+            float width=w;
             if(ratio<GlobalConfig::getinstance().armorobj.l_ratio||
                 ratio>GlobalConfig::getinstance().armorobj.t_ratio)
                 continue;
             Armor armor;
-            armor.hratio_diff=abs(lights[i].getcenter().y-lights[j].getcenter().y)/min(lights[i].getcenter().y,lights[j].getcenter().y);
-            if(lights[i].getcenter().x<lights[j].getcenter().y)//分左右
+            // armor.wratio_diff=w/();
+            if(lights[i].getcenter().x<lights[j].getcenter().x)//分左右
             {    
                 armor=Armor(lights[i],lights[j]);
                 armor.leftbar_index=i;
                 armor.rightbar_index=j;
             }
             else 
-            {    
+            {   
                 armor=Armor(lights[j],lights[i]);
                 armor.leftbar_index=j;
                 armor.rightbar_index=i;

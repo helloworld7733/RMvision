@@ -51,7 +51,7 @@ void Numrecognizer::Loadarmor(Armor& armor, const Mat& frame)
     Mat warpmatrix=getPerspectiveTransform(armor_ptr->vertices.data(),dstpts.data());
     Mat warpsrcimg;
     cvtColor(frame,warpsrcimg,COLOR_BGR2GRAY);
-    threshold(warpsrcimg,warpsrcimg,10,255,THRESH_BINARY);
+    threshold(warpsrcimg,warpsrcimg,20,255,THRESH_BINARY);
     warpPerspective(warpsrcimg,armorroi,warpmatrix,armorimgsz);
     // imshow("warp",armorroi);
 }

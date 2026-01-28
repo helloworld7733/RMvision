@@ -49,9 +49,9 @@ int main()
         }
 
         vector<Mat> hsvsplits=obj.Imagetransform(frame);
-        Mat red_mask=obj.Imageprocess(hsvsplits);//传入各个通道，便于后续及额外操作
-        vector<LightbarDetector> contours_rect=obj.findcontour(red_mask);
-        Mat drawing=Mat::zeros(red_mask.size(),CV_8UC3);
+        Mat mask=obj.Imageprocess(hsvsplits);//传入各个通道，便于后续及额外操作
+        vector<LightbarDetector> contours_rect=obj.findcontour(mask);
+        Mat drawing=Mat::zeros(mask.size(),CV_8UC3);
         for(int i=0;i<contours_rect.size();i++)
         {
             Point2f pts[4];

@@ -18,17 +18,18 @@ using namespace std;
 
 struct lightbar_para
 {
-    std::pair<float,float> hw_ratio={2,6};
-    std::pair<int,int> angle_range={20,160};
-    float min_area=10;
-    int min_countersz=10;
+    std::pair<float,float> hw_ratio={2,5};
+    std::pair<int,int> angle_range={12,165};
+    string enemy_color="red";//指定地方颜色为红色或蓝色
+    float min_area=16;
+    int min_countersz=15;
     int thresh_upper=240;
     int thresh_down=200;
 };
 
 struct armor_para
 {
-    float angle_diff=8;
+    float angle_diff=7;
     float heightratio_diff=0.1;
     float centeryratio_diff=0.1;
     float l_ratio=0.9;//允许的最小宽长比
