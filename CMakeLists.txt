@@ -11,6 +11,7 @@ add_executable(Detection
     src/lightbar_detector.cpp 
     src/armor_matcher.cpp
     src/num_recognizer.cpp
+    src/perspective.cpp
 )
 
 include_directories(

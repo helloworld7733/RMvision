@@ -16,7 +16,7 @@
 #include"config_manager.h"
 #include"lightbar_detector.h"
 #include"num_recognizer.h"
-// #include"perspective.h"
+#include"perspective.h"
 
 using namespace std;
 using namespace cv;
@@ -67,8 +67,12 @@ int main()
         {
             armor_detector.Frame_tracking(frame,old_frame,old_armors,armors);
         }
+
         Numrecognizer numrecognizer;
         numrecognizer.Loadsvm("D:/University_files/RM/cv/1.3/final/General/svm.xml");
+
+        Pnpsolver pnpsolver("D:/University_files/RM/cv/1.3/final/General/camera_info.yaml");
+
         for (auto ele:armors)
         {
             for(int s=0;s<4;s++)
@@ -90,6 +94,11 @@ int main()
                 numrecognizer.num_recognize();
             }
             putText(drawing,to_string(ele.num),Point(ele.vertices[0].x,ele.vertices[0].y-4),1,1,cv::Scalar(0,255,0));
+            pnpsolver.Getvec(ele);
+            pnpsolver.Practical_info();
+            std::stringstream ss;
+            ss<<"distance: "<<std::fixed<<std::setprecision(3)<<pnpsolver.distance<<"m";
+            putText(drawing,ss.str(),Point(ele.vertices[3].x,ele.vertices[3].y),1,1,cv::Scalar(0,255,0));
         }
         imshow("image",drawing);
         int key=waitKey(10);

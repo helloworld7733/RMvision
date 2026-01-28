@@ -34,6 +34,8 @@ public:
     int leftbar_index;//左灯条序号
     int rightbar_index;//右灯条序号
     float hratio_diff;//高度差比率，用来筛选装甲板中的重复灯条
+    float height;//装甲板的高度
+    float width;//装甲板的宽
     
 private:
     LightbarDetector leftlightbar;//一个装甲板由左右两个灯条构成，体现组合关系

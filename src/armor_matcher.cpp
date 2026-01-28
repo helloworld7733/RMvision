@@ -69,6 +69,10 @@ Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
     num=0;//暂时设0
 
     angle=(leftbar.getangle()+rightbar.getangle())/2;
+
+    height=(leftbar.getheight()+rightbar.getheight())/2;
+    width=sqrt(pow(leftbar.getcenter().x-rightbar.getcenter().x,2)+
+            pow(leftbar.getcenter().y-rightbar.getcenter().y,2));
 }
 
 void ArmorDetector::Erase_repeats(vector<Armor>& armors)
