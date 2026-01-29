@@ -61,6 +61,11 @@
     * num_recognizer.cpp
     * perspective.cpp
 * imgs: 演示的效果图
+    * lightbar.png
+    * armor.png
+    * num.png
+    * klt.png
+    * pnp.png
 * CMakeLists.txt: CMake构建文件
 
 ---
