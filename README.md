@@ -60,6 +60,7 @@
     * armor_matcher.cpp
     * num_recognizer.cpp
     * perspective.cpp
+* imgs: 演示的效果图
 * CMakeLists.txt: CMake构建文件
 
 ---
