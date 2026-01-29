@@ -4,7 +4,7 @@ project(ArmorDetection CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(OpenCV_DIR "D:/Libtools/vcpkg/installed/x64-windows/share/opencv4")
+
 find_package(OpenCV REQUIRED)
 add_executable(Detection 
     src/main.cpp 

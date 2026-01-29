@@ -83,7 +83,7 @@ int main()
         {
             for(int s=0;s<4;s++)
             {
-                //画出装甲板你
+                //画出装甲板
                 line(merged_frame,ele.vertices[s],ele.vertices[(s+1)%4],cv::Scalar(0,0,255));
             }
             //画出装甲板中心
