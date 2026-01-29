@@ -20,20 +20,22 @@
 using namespace cv;
 using namespace std;
 
+//函数介绍：依据左右灯条设置出装甲板四个角点
 void Armor::setvertices(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
 {
     cv::Size lsize((int)leftbar.lightrect.size.width,(int)leftbar.lightrect.size.height);
     cv::Size rsize((int)rightbar.lightrect.size.width,(int)rightbar.lightrect.size.height);
+    //描出矩形框
     RotatedRect lrect(leftbar.lightrect.center,lsize,leftbar.lightrect.angle);
     RotatedRect rrect(rightbar.lightrect.center,rsize,rightbar.lightrect.angle);
     cv::Point2f ptsl[4];
     lrect.points(ptsl);    
     cv::Point2f ptsr[4];
     rrect.points(ptsr);
-    // vector<Point2f> vers;
+
     vertices.clear();
-    // cout<<"left: "<<"0:"<<ptsl[0]<<" 1: "<<ptsl[1]<<"2: "<<ptsl[2]<<"3: "<<ptsl[3]<<endl;
-    // cout<<"right: "<<"0:"<<ptsr[0]<<" 1: "<<ptsr[1]<<"2: "<<ptsr[2]<<"3: "<<ptsr[3]<<endl;
+    //大坑：由于rotatedrect.points返回点顺序不固定，故此处依据实际情况进行校对
+    //最终保证顺序：左下，左上，右上，右下
     if(ptsl[1].x<ptsl[2].x)
     {
         vertices.push_back(ptsl[3]);
@@ -56,9 +58,11 @@ void Armor::setvertices(const LightbarDetector& leftbar, const LightbarDetector&
     }
 }
 
+//函数介绍：计算四个点对角线坐标
 Point2f Armor::calc_cross(vector<Point2f> vertices)
 {
     vector<Point2f> vers=vertices;
+    //依据四个点计算对角线坐标，使用y=kx+b形式计算，简单数学原理
     float k1=(vers[2].y-vers[0].y)/(vers[2].x-vers[0].x);
     float k2=(vers[1].y-vers[3].y)/(vers[1].x-vers[3].x);
     float cross1=vers[0].y*vers[2].x-vers[2].y*vers[0].x;
@@ -71,13 +75,15 @@ Point2f Armor::calc_cross(vector<Point2f> vertices)
     return ret;
 }
 
+//函数介绍：将角点对角线设置为装甲板中心
 Point2f Armor::Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
 {
     setvertices(leftbar,rightbar);
-
+    //将四个点交点作为装甲板中心点
     return calc_cross(vertices);
 }
 
+//函数介绍：装甲板构造函数
 Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
 {
     leftlightbar=leftbar;
@@ -85,11 +91,14 @@ Armor::Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar)
 
     center=Crossline(leftbar,rightbar);//对角线为中心
     
-    num=0;//暂时设0
+    //数字识别结果，暂时设0
+    num=0;
 
+    //角度采用左右灯条角度平均值
     angle=(leftbar.getangle()+rightbar.getangle())/2;
 }
 
+//函数介绍：去除在同时匹配上同一个灯条的不同装甲板之一，因为一个灯条只能有一个装甲板匹配
 void ArmorDetector::Erase_repeats(vector<Armor>& armors)
 {
     vector<int> repeats;
@@ -100,11 +109,13 @@ void ArmorDetector::Erase_repeats(vector<Armor>& armors)
     {
         for(int j=i+1;j<armors.size();j++)
         {
+            //若不同装甲板你左右灯条下标一样，意味着匹配到相同灯条
             if(armors[i].leftbar_index==armors[j].rightbar_index||
                 armors[i].leftbar_index==armors[j].leftbar_index||
                 armors[i].rightbar_index==armors[j].rightbar_index||
                 armors[i].rightbar_index==armors[j].leftbar_index)
             {
+                //筛选标准：在两个装甲板宽高比差在合理范围内时，去除偏角大的；不在合理范围时，去除宽长比大的
                 if(abs(armors[i].wh_ratio-armors[j].wh_ratio)<GlobalConfig::getinstance().armorobj.min_whratio)
                 {
                     cout<<777<<endl;
@@ -128,6 +139,7 @@ void ArmorDetector::Erase_repeats(vector<Armor>& armors)
             }
         }
     }
+    //先把需要去除的装甲板你序号放入repeats中，此处使用vector.erase从后往前去除（防止从前往后时，后面元素往前进而导致下标不匹配问题）
     sort(repeats.begin(),repeats.end());
     repeats.erase(unique(repeats.begin(),repeats.end()),repeats.end());
     for(int i=repeats.size()-1;i>=0;i--)
@@ -136,6 +148,7 @@ void ArmorDetector::Erase_repeats(vector<Armor>& armors)
     }
 }
 
+//函数介绍：去除错误匹配，用于普通情况下与Klt光流检测后筛去显然不合理的装甲板
 void ArmorDetector::Erase_wrong(vector<Armor>& armors)
 {
     vector<int> repeats;
@@ -149,6 +162,7 @@ void ArmorDetector::Erase_wrong(vector<Armor>& armors)
         float mindis=min({dis01,dis02,dis03,dis04});
         if(armors[i].bflag)//大装甲
         {
+            //筛选标准1：若装甲板四个边中最大边比最小边大的多，则认定不合理
             if((maxdis-mindis)/maxdis>GlobalConfig::getinstance().armorobj.dis_ratio_b)
             {
                 repeats.push_back(i);
@@ -161,10 +175,12 @@ void ArmorDetector::Erase_wrong(vector<Armor>& armors)
                 repeats.push_back(i);
             }
         }
+        //筛选标准2：若装甲板左右两角点y相差很大，则装甲板可能出现扭曲，认定不合理
         if(abs(armors[i].vertices[1].y-armors[i].vertices[2].y)>GlobalConfig::getinstance().armorobj.y_diff)
             repeats.push_back(i);
 
     }
+    //同erase_repeats一样的筛去逻辑
     sort(repeats.begin(),repeats.end());
     repeats.erase(unique(repeats.begin(),repeats.end()),repeats.end());
     for(int i=repeats.size()-1;i>=0;i--)
@@ -173,6 +189,7 @@ void ArmorDetector::Erase_wrong(vector<Armor>& armors)
     }
 }
 
+//函数介绍：依据灯条匹配合适的装甲板
 vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
 {
     vector<Armor> armors;
@@ -228,11 +245,13 @@ vector<Armor> ArmorDetector::matchbars(const vector<LightbarDetector>& lights)
             armors.push_back(armor);
         }
     }
+    //重复匹配筛选（不同装甲板匹配到相同灯条）与错误匹配二次筛选
     Erase_repeats(armors);
     Erase_wrong(armors);
     return armors;
 }
 
+//跨帧一致性约束：由于装甲板匹配可能在不同帧之间短暂性失效，此处使用Klt光流追踪法，对前一帧的装甲板四个角点进行追踪,能极大提高识别度
 void ArmorDetector::Frame_tracking(Mat frame, Mat old_frame, vector<Armor> old_armors, vector<Armor>& armors)
 {
     vector<Point2f> newvertices;
@@ -241,22 +260,27 @@ void ArmorDetector::Frame_tracking(Mat frame, Mat old_frame, vector<Armor> old_a
     bool tracking_success=true;
     for(int i=0;i<old_armors.size();i++)
     {
+        //klt光流法追踪，追踪得到的新角点放入newvertices，每个点追踪状态放入status，误差放入err
         cv::calcOpticalFlowPyrLK(old_frame,frame,old_armors[i].vertices,newvertices,status,err);
 
         for(auto a:status)
         {
             if(!a) tracking_success=false;
         }
+        //每个点都追踪成功，总的才能算成功
         if(tracking_success)
         {
             Armor armor;
+            //提高准确率关键一招：追踪出的装甲板数字识别结果直接采用旧装甲板数字识别结果
             armor.num=old_armors[i].num;
             armor.vertices=newvertices;
+            //大小装甲板参数不变
             armor.bflag=old_armors[i].bflag;
             armor.center=armor.calc_cross(newvertices);
             armors.push_back(armor);
         }
     }
+    //由于klt光流法可能得到很离谱的匹配结果（实验中发现），故最后进行错误匹配筛选
     Erase_wrong(armors);
     
 }

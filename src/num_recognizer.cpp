@@ -23,13 +23,14 @@ using namespace cv::ml;
 Numrecognizer::Numrecognizer()
 {
     svm=SVM::create();
-    armorimgsz=cv::Size(40,40);
+    armorimgsz=cv::Size(40,40);//固定参数
     armorroi=Mat();
 }
 
 void Numrecognizer::Loadsvm(string path)
 {
     svm=SVM::load(path);
+    //异常处理
     if(svm.empty())
     {
         cerr<<"fail in loading the svm model"<<endl;
@@ -41,8 +42,9 @@ void Numrecognizer::Loadarmor(Armor& armor, const Mat& frame)
 {
     armor_ptr=&armor;
 
-    //在此处执行透视变换，依赖于armor已识别的四个角点(自适应)
+    //在此处执行透视变换已提高识别准度，依赖于armor已识别的四个角点(自适应)
     vector<Point2f> dstpts;//顺序：左下，左上，右上，右下
+    //关键一招：由于将数字直接撑满识别框可能导致识别准度不足，故在四周留白，将数字位于中心，能提高识别准度
     dstpts.push_back(Point2f(5,35));
     dstpts.push_back(Point2f(5,5));
     dstpts.push_back(Point2f(35,5));
@@ -60,6 +62,7 @@ void Numrecognizer::num_recognize()
 {
     armorroi=armorroi.reshape(1,1);
     armorroi.convertTo(armorroi,CV_32FC1);
+    //数字识别
     armor_ptr->num=svm->predict(armorroi);
     // cout<<armor_ptr->num<<endl;
 }

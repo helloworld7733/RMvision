@@ -24,10 +24,12 @@
 using namespace cv;
 using namespace std;
 
+//相机参数导入
 Pnpsolver::Pnpsolver(string path)
 {
     cv::FileStorage fs(path,FileStorage::READ);
 
+    //异常处理
     if(!fs.isOpened())
     {
         cerr<<"fail in opening the camera para file"<<endl;
@@ -45,10 +47,11 @@ Pnpsolver::Pnpsolver(string path)
     // dist=dist.reshape(1,1);//1通道，1行
 }
 
+//得到旋转向量与平移向量
 void Pnpsolver::Getvec(Armor& armor)
 {
     float halfw,halfh;
-    //赋予真实尺寸
+    //赋予真实尺寸，使得在实际中能得到真实物理距离
     if(armor.bflag)//是大装甲
     {
         halfw=230/2;
@@ -68,20 +71,21 @@ void Pnpsolver::Getvec(Armor& armor)
 
 
     bool success=solvePnP(obj_p,armor.vertices,mtx,dist,rvec,tvec);
-    if(!success)
+    if(!success)//异常处理
     {
         cerr<<"fail in pnp"<<endl;
         exit(-1);
     }
 }
 
+//平移向量可用于计算距离
 void Pnpsolver::Practical_info()
 {
     double tx=tvec.at<double>(0);
     double ty=tvec.at<double>(1);
     double tz=tvec.at<double>(2);
 
-    distance=sqrt(tx*tx+ty*ty+tz*tz);
+    distance=sqrt(tx*tx+ty*ty+tz*tz);//直线距离
 
     distance=distance/1000;//转为米单位
     

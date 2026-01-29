@@ -24,8 +24,11 @@ class Numrecognizer
 {
 public:
     Numrecognizer();
+    //加载svm参数
     void Loadsvm(string path);
+    //加载需要检测的装甲板
     void Loadarmor(Armor& armor,const Mat& frame);
+    //识别算法
     void num_recognize();
 
 private:

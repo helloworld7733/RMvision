@@ -21,15 +21,21 @@ class LightbarDetector
 public:
     LightbarDetector(){}
     LightbarDetector(const cv::RotatedRect& light);
-    vector<Mat> Imagetransform(Mat& frame);//bgr转hsv
-    Mat Imageprocess(const vector<Mat>& vchannel);//二值化，blur, dilate
-    void adjustrec(RotatedRect& elps);//外接椭圆规范化
-    vector<LightbarDetector> findcontour(const Mat& frame);//包含初步筛选
+    //bgr转hsv
+    vector<Mat> Imagetransform(Mat& frame);
+    //二值化，blur, dilate
+    Mat Imageprocess(const vector<Mat>& vchannel);
+    //外接椭圆规范化
+    void adjustrec(RotatedRect& elps);
+    //寻找灯条轮廓，包含初步筛选
+    vector<LightbarDetector> findcontour(const Mat& frame);
+    
     RotatedRect lightrect;
     float getangle() const {return angle;}
     float getheight() const {return height;}
     float getwidth() const {return width;}
     Point2f getcenter() const {return center;}
+    
 private:
     float height,width,angle,area;
     cv::Point2f center;

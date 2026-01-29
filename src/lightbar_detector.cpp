@@ -17,7 +17,8 @@
 using namespace cv;
 using namespace std;
 
-LightbarDetector::LightbarDetector(const cv::RotatedRect& light)//用于从旋转矩形框中提取参数
+//灯条构造函数，从旋转矩形框中提取参数
+LightbarDetector::LightbarDetector(const cv::RotatedRect& light)
 {
     width = light.size.width;
     height = light.size.height;
@@ -27,8 +28,10 @@ LightbarDetector::LightbarDetector(const cv::RotatedRect& light)//用于从旋�
     lightrect=RotatedRect(center,Size2f(width,height),angle);
 }
 
+//函数介绍：旋转椭圆规范化，定义高、宽、中心轴
 void LightbarDetector::adjustrec(RotatedRect& elps)
 {
+    //使得height始终大于width
     if(elps.size.height<elps.size.width)
     {
         swap(elps.size.height,elps.size.width);
@@ -38,6 +41,7 @@ void LightbarDetector::adjustrec(RotatedRect& elps)
     if(elps.angle<0) elps.angle+=180;
 }
 
+//函数介绍：图像形状变化（全部变成1440*1080，因为这是相机参数）与hsv变换
 vector<Mat> LightbarDetector::Imagetransform(Mat& frame)
 {
     Mat hsv_image;
@@ -51,15 +55,17 @@ vector<Mat> LightbarDetector::Imagetransform(Mat& frame)
     return hsvsplit;
 }
 
+//图像处理，依据hsv三通道值筛选灯条
 Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)
 {
     Mat frame,mask1,mask2,mask;
     cv::merge(channels,frame);//通道合并，因为此处颜色操作是对于全视频的
-    //亮度通道阈值化
-
+    //亮度通道阈值化（未用上）
     int threshup=GlobalConfig::getinstance().lightobj.thresh_upper;
     int threshdn=GlobalConfig::getinstance().lightobj.thresh_down;
+
     string enemy_color=GlobalConfig::getinstance().lightobj.enemy_color;
+
     if(enemy_color=="red")
     {
         //红色在h色调图中有两个区间，故分为两个区间讨论
@@ -94,6 +100,7 @@ Mat LightbarDetector::Imageprocess(const vector<Mat>& channels)
     return mask;
 }
 
+//函数介绍：寻找灯条轮廓
 vector<LightbarDetector> LightbarDetector::findcontour(const Mat& frame)
 {
     vector<vector<Point>> contours;
@@ -117,6 +124,7 @@ vector<LightbarDetector> LightbarDetector::findcontour(const Mat& frame)
             lightrec.size.height/lightrec.size.width>GlobalConfig::getinstance().lightobj.hw_ratio.second) 
             continue;//舍弃高宽比不合适的
         // drawContours(drawing,contours,i,cv::Scalar(255,0,0),2,LINE_8,hierarchy,0);
+        //放大灯条以利于后续装甲板匹配
         lightrec.size.height*=1.3;
         lightrec.size.width*=1.3;
         rect.push_back(LightbarDetector(lightrec));

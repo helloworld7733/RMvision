@@ -18,15 +18,19 @@ using namespace cv;
 using namespace std;
 
 
-
 class Armor
 {
 public:
     Armor(){}
+    //依据左右灯条设置角点坐标，顺序：左下，左上，右上，右下
     void setvertices(const LightbarDetector& leftbar, const LightbarDetector& rightbar);
+    //计算对角线交点
     Point2f calc_cross(vector<Point2f> vertices);
-    Point2f Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar);//得出对角线角点作为装甲板中心
+    //将对角线交点作为中心点
+    Point2f Crossline(const LightbarDetector& leftbar, const LightbarDetector& rightbar);
+    //依据左右灯条构造装甲板
     Armor(const LightbarDetector& leftbar, const LightbarDetector& rightbar);
+    
     int num;//数字识别结果
     float angle;//装甲板倾斜角
     cv::Point2f center;//装甲板中心

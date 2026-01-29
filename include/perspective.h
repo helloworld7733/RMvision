@@ -22,20 +22,22 @@
 using namespace cv;
 using namespace std;
 
+//pnp位姿估计，获取实际小车距离信息
 class Pnpsolver
 {
 public:
+    //加载相机参数
     Pnpsolver(string path);
-
+    //得到旋转向量与平移向量
     void Getvec(Armor& armor);
-
+    //将向量信息转为实用信息
     void Practical_info();
 
     double distance;//直线距离
 
 private:
-    Mat dist;
-    Mat mtx;
+    Mat dist;//畸变系数
+    Mat mtx;//相机矩阵
     Mat tvec,rvec;//旋转向量和平移向量
 
 };

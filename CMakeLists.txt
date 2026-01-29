@@ -17,4 +17,7 @@ add_executable(Detection
 include_directories(
     ${PROJECT_SOURCE_DIR}/include 
     ${OpenCV_INCLUDE_DIRS})
+target_compile_definitions(Detection PRIVATE 
+    PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/"
+)
 target_link_libraries(Detection ${OpenCV_LIBS})

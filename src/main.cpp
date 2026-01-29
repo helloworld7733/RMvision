@@ -26,7 +26,8 @@ using namespace cv;
 
 int main()
 {
-    VideoCapture cap("D:/University_files/RM/cv/1.3/finalvideo/test01.avi");
+    VideoCapture cap(string(PROJECT_DIR)+"/Video/test01.mp4");//可更换为实际存储路径
+    //无法读入异常处理
     if(!cap.isOpened())
     {
         cerr<<"fail in opening the video"<<endl;
@@ -35,24 +36,29 @@ int main()
     LightbarDetector obj;
     Mat frame,old_frame;//上一帧
     vector<Armor> old_armors;
+
     Numrecognizer numrecognizer;
-    numrecognizer.Loadsvm("D:/University_files/RM/cv/1.3/final/General/svm.xml");
-    Pnpsolver pnpsolver("D:/University_files/RM/cv/1.3/final/General/camera_info.yaml");
+    numrecognizer.Loadsvm(string(PROJECT_DIR)+"/General/svm.xml");//可更换为实际存储路径
+
+    Pnpsolver pnpsolver(string(PROJECT_DIR)+"/General/camera_info.yaml");//可更换为实际存储路径
+
     ArmorDetector armor_detector;
 
     while(1)
     {
         cap>>frame;
+        //无法读入异常处理
         if(frame.empty())
         {
             cout<<"fail in viewing the video"<<endl;
             return -1;
         }
-
+        //灯条识别逻辑
         vector<Mat> hsvsplits=obj.Imagetransform(frame);
         Mat merged_frame=frame.clone();
         Mat mask=obj.Imageprocess(hsvsplits);//传入各个通道，便于后续及额外操作
         vector<LightbarDetector> contours_rect=obj.findcontour(mask);
+
         Mat drawing=Mat::zeros(mask.size(),CV_8UC3);
         for(int i=0;i<contours_rect.size();i++)
         {
@@ -60,12 +66,16 @@ int main()
             contours_rect[i].lightrect.points(pts);
             for(int ii=0;ii<4;ii++)
             {
+                //画出灯条
                 line(merged_frame,pts[ii],pts[(ii+1)%4],cv::Scalar(255,0,0),2,LINE_8);
             }
         }
+        //装甲板识别逻辑
         vector<Armor> armors=armor_detector.matchbars(contours_rect);
+
         if(!old_frame.empty()&&armors.empty())//排除首帧
         {
+            //跨帧一致性约束
             armor_detector.Frame_tracking(frame,old_frame,old_armors,armors);
         }
 
@@ -73,8 +83,10 @@ int main()
         {
             for(int s=0;s<4;s++)
             {
+                //画出装甲板你
                 line(merged_frame,ele.vertices[s],ele.vertices[(s+1)%4],cv::Scalar(0,0,255));
             }
+            //画出装甲板中心
             circle(merged_frame,ele.center,3,Scalar(0,255,0),5);
             if(ele.bflag)//是大装甲
             {
@@ -86,10 +98,13 @@ int main()
             }
             if(ele.num==0)//防止是旧帧
             {    
+                //中心数字识别
                 numrecognizer.Loadarmor(ele,frame);
                 numrecognizer.num_recognize();
             }
+            //在左下角显示数字
             putText(merged_frame,to_string(ele.num),Point(ele.vertices[0].x,ele.vertices[0].y-4),1,1,cv::Scalar(0,255,0));
+            //Pnp位姿估计，获取实际小车距离信息
             pnpsolver.Getvec(ele);
             pnpsolver.Practical_info();
             std::stringstream ss;
